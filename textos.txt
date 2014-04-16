@@ -1,0 +1,51 @@
+Ainda está bastante incompleto, não sei bem o que hei de escrever.
+
+
+Objetivo
+	O objetivo é usar algoritmos de aprendizagem(ID3 ou C4.5 por exemplo) para a classificação de duas doenças específicas do sistema urinário.
+
+Especificação
+	
+	O nosso trabalho passa por usar os algoritmos de aprendizagem ID3 ou C4.5 para a classificação de duas doenças específicas do sistema urinário, sendo-nos dado uma série de elementos para analisar, sendo esses mesmos definidos por uma série de atributos. Para tal, iremos utilizar a biblioteca WEKA(Waikato Environment for Knowledge Analysis) - que contém uma série de algoritmos de aprendizagem, incluindo o C4.5, que é o que vamos usar - e usar a linguagem de programação Java para o efeito.
+	O nosso programa estará separado em 4 módulos, cada um destinado a uma tarefa específica.
+	Para a Representação do Conhecimento, teremos o módulo da leitura dos elementos do domínio em análise, que os irá ler de um ficheiro de texto fornecido pelos docentes da Unidade Curricular no enunciado deste trabalho. Como tal, este ficheiro de texto irá estar num formato específico para a leitura do mesmo, que iremos detalhar mais à frente.
+	O segundo módulo será o da criação da árvore de decisão, fazendo uso da biblioteca da WEKA.
+	O terceiro abordará o treino e teste da árvore de decisão criada anteriormente, usando 2/3 dos dados para treinar e o restante terço para testar a mesma.
+	O quarto e último estará encarregue da introdução de um novo elemento para determinar se o mesmo poderá ser diagnosticado(ou não) com uma das duas doenças(ou as duas simultaneamente).
+	Em termos da ordem de desenvolvimento deste projeto, iremos abordar cada um dos módulos pela ordem descrita acima, pois nós achamos que essa será a mehor maneira de concluir o projeto com o maior sucesso possível.
+
+		Representação do Conhecimento 
+			Os nossos dados irão estar albergados num ficheiro de texto, de modo a modularizar o nosso programa e separar a informação da parte da resolução do problema.
+			A forma como o ficheiro de texto estará organizado será a seguinte:
+				@relation disease
+
+				@attribute temperature numeric
+				@attribute nausea {yes, no}
+				@attribute lumbarPain {yes, no}
+				@attribute urinePushing {yes, no}
+				@attribute micturitionPains {yes, no}
+				@attribute burningOrItch {yes, no}
+				@attribute inflammationOfBladder {yes, no}
+				@attribute nephritisOfRenalPelvis {yes, no}
+
+				@data
+				35,no,yes,no,no,no,no,no
+				35.9,no,no,yes,yes,yes,yes,no
+				35.9,no,yes,no,no,no,no,no
+				36.0,no,no,yes,yes,yes,yes,no
+
+			Como se pode ver por este excerto do ficheiro, tem duas parte importantes, a do header onde estão definidos os vários tipos de atributos encontrados ao longo do ficheiro bem como os seus valores possíveis, e a dos dados.
+			Optámos por usar esta estrutura para facilitar e tornar mais eficiente a leitura de dados, bem como para facilitar a sua representação em código nas estruturas oferecidas pela WEKA (no nosso caso escolhemos a classe Instances).
+
+Trabalho Efetuado
+
+	Nós já temos a nossa aplicação bastante avançada, já com a leitura dos dados, árvore de decisão feita e treinada e a funcionar corretamente, sendo já possível efetuar testes à mesma, retornando se de acordo com os dados fornecidos, esse paciente poderá ser diagnosticado com uma das duas doenças(ou as duas) ou não. Para adicionar novos elementos para testar, oferecemos também uma CLI (Command Line Interface) para que o utilizador possa introduzir os vários sintomas.
+
+Resultados esperados e forma de avaliação
+	
+	Como já foi referido acima, o nosso programa dispõe de uma interface em linha de comandos onde é possível inserir novos elementos para testar.
+
+
+
+
+
