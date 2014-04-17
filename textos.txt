@@ -43,7 +43,7 @@ Trabalho Efetuado
 
 Resultados esperados e forma de avaliação
 	
-	Como já foi referido acima, o nosso programa dispõe de uma interface em linha de comandos onde é possível inserir novos elementos para testar.
+	Como já foi referido acima, o nosso programa dispõe de uma interface em linha de comandos onde é possível inserir novos elementos para testar. Neste caso, existem 6 sintomas possíveis, que poderão dar uma ou as duas possíveis, portanto, para testar irá ser pedido a utilizador para introduzir os vários sintomas, que serão depois computados e será retornado ao utilizador o resultado.
 
 
 
