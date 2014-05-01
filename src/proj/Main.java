@@ -94,6 +94,7 @@ public class Main {
 		attrs.add(burningOrItch);
 		attrs.add(inflammationOfBladder);
 		attrs.add(nephritisOfRenalPelvis);
+		
 		Instances newCases = new Instances("newCase", attrs, 100);
 		for (int j = 0;; j++) {
 			do {
