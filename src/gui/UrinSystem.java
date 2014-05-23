@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -13,6 +14,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JButton;
 
 import proj.Classify;
+import weka.classifiers.trees.J48;
+import weka.gui.treevisualizer.PlaceNode2;
+import weka.gui.treevisualizer.TreeVisualizer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,12 +26,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-
-import javax.swing.JTree;
+import javax.swing.JSeparator;
 
 public class UrinSystem {
 
 	private JFrame frame;
+	private boolean trainFileExists = true;
 	static Classify classify;
 	private static JFileChooser fileChooser = new JFileChooser();
 	static BufferedReader trainReader = null, testReader = null;
@@ -55,6 +59,35 @@ public class UrinSystem {
 		});
 	}
 
+	public void viewTree()
+	{
+		if(trainFileExists) 
+		{
+		final javax.swing.JFrame jf = 
+		
+		       new javax.swing.JFrame("Weka Classifier Tree Visualizer: J48");
+		     jf.setSize(500,400);
+		     jf.getContentPane().setLayout(new BorderLayout());
+		     TreeVisualizer tv = null;
+			try {
+				tv = new TreeVisualizer(null,
+				     ((J48) classify.getClassifier()).graph(),
+				     new PlaceNode2());
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		     jf.getContentPane().add(tv, BorderLayout.CENTER);
+		     jf.addWindowListener(new java.awt.event.WindowAdapter() {
+		       public void windowClosing(java.awt.event.WindowEvent e) {
+		         jf.dispose();
+		       }
+		     });
+
+		     jf.setVisible(true);
+		     tv.fitToScreen();
+		}
+	}
 	/**
 	 * Create the application.
 	 * @throws Exception 
@@ -67,9 +100,30 @@ public class UrinSystem {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		final JLabel testedCases = new JLabel("");
+		testedCases.setBounds(352, 11, 46, 14);
+		frame.getContentPane().add(testedCases);
+		
+		JLabel lblCorrectlyClassified = new JLabel("Correctly Classified");
+		lblCorrectlyClassified.setBounds(266, 36, 120, 14);
+		frame.getContentPane().add(lblCorrectlyClassified);
+		
+		final JLabel correctlyClassified = new JLabel("");
+		correctlyClassified.setBounds(390, 36, 46, 14);
+		frame.getContentPane().add(correctlyClassified);
+		
+		
 		try {
 			trainReader = new BufferedReader(new FileReader("train.data"));
+			
 		} catch (FileNotFoundException e1) {
+			trainFileExists = false;
 			JOptionPane.showMessageDialog(frame, "train.data not found, select another train file");
 		}
 		try {
@@ -84,13 +138,11 @@ public class UrinSystem {
 		}
 		try {
 			classify.train();
+			classify.test();
+			testedCases.setText(Double.toString(classify.getEval().numInstances()));
+			correctlyClassified.setText(Double.toString(classify.getEval().pctCorrect()) + "%");
 		} catch (Exception e1) {
 		}
-		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
-		
 		final JLabel lblTemperaturecc = new JLabel("Temperature(35C-42C)");
 		lblTemperaturecc.setBounds(10, 11, 150, 14);
 		frame.getContentPane().add(lblTemperaturecc);
@@ -145,7 +197,17 @@ public class UrinSystem {
 		btnChangeTrainFile.setBounds(130, 150, 109, 23);
 		frame.getContentPane().add(btnChangeTrainFile);
 		
+		JLabel lblTestedCases = new JLabel("Tested Cases");
+		lblTestedCases.setBounds(266, 11, 86, 14);
+		frame.getContentPane().add(lblTestedCases);
 		
+		JSeparator separator = new JSeparator(JSeparator.VERTICAL);
+		separator.setBounds(260, 0, 100, 600);
+		frame.getContentPane().add(separator);
+		
+
+		
+		viewTree();
 		btnChangeTestFile.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent event) {
@@ -159,6 +221,8 @@ public class UrinSystem {
 								testReader = newReaderFile;
 								classify.changeReaders(null, newReaderFile);
 								classify.test();
+								testedCases.setText(Double.toString(classify.getEval().numInstances()));
+								correctlyClassified.setText(Double.toString(classify.getEval().pctCorrect()) + "%");
 							} catch (FileNotFoundException e) {
 								JOptionPane.showMessageDialog(frame, "File not found!");
 								e.printStackTrace();
@@ -184,7 +248,11 @@ public class UrinSystem {
 								trainReader = newReaderFile;
 								classify.changeReaders(newReaderFile, null);
 								classify.train();
+								classify.test();
+								trainFileExists = true;
+								viewTree();
 							} catch (FileNotFoundException e) {
+								trainFileExists = false;
 								JOptionPane.showMessageDialog(frame, "File not found!");
 							} catch (Exception e) {
 							}
@@ -230,15 +298,21 @@ public class UrinSystem {
 					else lblNephritis.setText("NO");
 					
 				} catch (Exception e) {
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(frame, "Bad File Format");
 				}
 				
-				
+
 			}
+
+			
 		});
 		btnTest.setBounds(150, 78, 89, 23);
 		frame.getContentPane().add(btnTest);
 		
+		
+
+		
+
 
 		
 

@@ -23,23 +23,20 @@ public class Classify {
 
 	static Classifier tree;
 	static Instances test,train;
+	static Evaluation eval;
 	
 	public Classify()
 	{
 		tree = new J48();
+		
 	}
+	
 	public void test() throws Exception 
 	{
-		test.setClassIndex(train.numAttributes() - 1);
-		
-		
-		for(int i = 0; i < test.numInstances();i++)
-		{
-			double predicted = tree.classifyInstance(test.instance(i));
-			System.out.print("Temperature: " + test.instance(i).value(0));
-			System.out.print(", actual: " + test.classAttribute().value((int) test.instance(i).classValue()));
-			System.out.println(", predicted: " + test.classAttribute().value((int) predicted));
-		}
+		 test.setClassIndex(train.numAttributes() - 1);
+		 eval = new Evaluation(train);
+		 eval.evaluateModel(tree, test);
+		 System.out.println("Entropy = " + eval.toClassDetailsString());
 	}
 	
 	public void train() throws Exception
@@ -79,7 +76,6 @@ public class Classify {
 		
 		
 
-		//double acc = accuracyCalc(predictions);
 		Instances newCases = new Instances("newCase", attrs, 1);
 
 			
@@ -94,7 +90,6 @@ public class Classify {
 
 			newCases.add(newCaseInstance);
 			newCases.setClassIndex(newCases.numAttributes() - 1);
-
 			Instances labeled = new Instances(newCases);
 
 			double label = tree.classifyInstance(newCases.instance(0));
@@ -107,8 +102,28 @@ public class Classify {
 	
 	public void changeReaders(BufferedReader trainReader, BufferedReader testReader) throws IOException
 	{
-		if(trainReader == null) test = new Instances(testReader); 
-		else train = new Instances(trainReader);
+		if(trainReader != null && testReader != null)
+		{
+			train = new Instances(trainReader);
+			test = new Instances(testReader);
+		}
+		else
+		{
+			if(trainReader == null) 
+				test = new Instances(testReader); 
+			
+			else train = new Instances(trainReader);
+		}
+	}
+	
+	public Classifier getClassifier()
+	{
+		return tree;
+	}
+	
+	public Evaluation getEval()
+	{
+		return eval;
 	}
 
 }
