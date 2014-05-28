@@ -6,7 +6,6 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -22,10 +21,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.math.BigDecimal;
+
 import javax.swing.JSeparator;
 
 public class UrinSystem {
@@ -35,6 +37,7 @@ public class UrinSystem {
 	static Classify classify;
 	private static JFileChooser fileChooser = new JFileChooser();
 	static BufferedReader trainReader = null, testReader = null;
+	javax.swing.JFrame treeFrame;
 	/**
 	 * @wbp.nonvisual location=81,-1
 	 */
@@ -43,8 +46,7 @@ public class UrinSystem {
 	/**
 	 * Launch the application.
 	 */
-	
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -59,38 +61,36 @@ public class UrinSystem {
 		});
 	}
 
-	public void viewTree()
-	{
-		if(trainFileExists) 
-		{
-		final javax.swing.JFrame jf = 
-		
-		       new javax.swing.JFrame("Weka Classifier Tree Visualizer: J48");
-		     jf.setSize(500,400);
-		     jf.getContentPane().setLayout(new BorderLayout());
-		     TreeVisualizer tv = null;
+	public void viewTree() {
+		if (trainFileExists) {
+			treeFrame = new javax.swing.JFrame("C4.5 Decision Tree");
+			treeFrame.setSize(500, 400);
+			treeFrame.getContentPane().setLayout(new BorderLayout());
+			TreeVisualizer tv = null;
 			try {
 				tv = new TreeVisualizer(null,
-				     ((J48) classify.getClassifier()).graph(),
-				     new PlaceNode2());
+						((J48) classify.getClassifier()).graph(),
+						new PlaceNode2());
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		     jf.getContentPane().add(tv, BorderLayout.CENTER);
-		     jf.addWindowListener(new java.awt.event.WindowAdapter() {
-		       public void windowClosing(java.awt.event.WindowEvent e) {
-		         jf.dispose();
-		       }
-		     });
+			treeFrame.getContentPane().add(tv, BorderLayout.CENTER);
+			treeFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+				public void windowClosing(java.awt.event.WindowEvent e) {
 
-		     jf.setVisible(true);
-		     tv.fitToScreen();
+					treeFrame.dispose();
+				}
+			});
+
+			treeFrame.setVisible(true);
+			tv.fitToScreen();
 		}
 	}
+
 	/**
 	 * Create the application.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public UrinSystem() throws Exception {
 		initialize();
@@ -105,31 +105,48 @@ public class UrinSystem {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-		
+
 		final JLabel testedCases = new JLabel("");
 		testedCases.setBounds(352, 11, 46, 14);
 		frame.getContentPane().add(testedCases);
-		
-		JLabel lblCorrectlyClassified = new JLabel("Correctly Classified");
-		lblCorrectlyClassified.setBounds(266, 36, 120, 14);
+
+		JLabel lblCorrectlyClassified = new JLabel("Correctly Classified(%)");
+		lblCorrectlyClassified.setBounds(266, 58, 130, 14);
 		frame.getContentPane().add(lblCorrectlyClassified);
-		
+
 		final JLabel correctlyClassified = new JLabel("");
-		correctlyClassified.setBounds(390, 36, 46, 14);
+		correctlyClassified.setBounds(400, 58, 46, 14);
 		frame.getContentPane().add(correctlyClassified);
-		
-		
+
+		JLabel lblCorrectlyPredicted = new JLabel("Correctly Predicted");
+		lblCorrectlyPredicted.setBounds(266, 33, 113, 14);
+		frame.getContentPane().add(lblCorrectlyPredicted);
+
+		final JLabel correctlyPredicted = new JLabel("");
+		correctlyPredicted.setBounds(380, 33, 46, 14);
+		frame.getContentPane().add(correctlyPredicted);
+
+		JLabel lblRootAttribute = new JLabel("Root Gain Ratio");
+		lblRootAttribute.setBounds(266, 83, 86, 14);
+		frame.getContentPane().add(lblRootAttribute);
+
+		final JLabel rootLabel = new JLabel("");
+		rootLabel.setBounds(360, 83, 60, 14);
+		frame.getContentPane().add(rootLabel);
+
 		try {
 			trainReader = new BufferedReader(new FileReader("train.data"));
-			
+
 		} catch (FileNotFoundException e1) {
 			trainFileExists = false;
-			JOptionPane.showMessageDialog(frame, "train.data not found, select another train file");
+			JOptionPane.showMessageDialog(frame,
+					"train.data not found, select another train file");
 		}
 		try {
 			testReader = new BufferedReader(new FileReader("test.data"));
 		} catch (FileNotFoundException e1) {
-			JOptionPane.showMessageDialog(frame, "test.data not found, select another test file");
+			JOptionPane.showMessageDialog(frame,
+					"test.data not found, select another test file");
 		}
 		try {
 			classify = new Classify();
@@ -139,188 +156,206 @@ public class UrinSystem {
 		try {
 			classify.train();
 			classify.test();
-			testedCases.setText(Double.toString(classify.getEval().numInstances()));
-			correctlyClassified.setText(Double.toString(classify.getEval().pctCorrect()) + "%");
+			testedCases.setText(Double.toString(classify.getEval()
+					.numInstances()));
+			correctlyClassified.setText(Double.toString(classify.getEval()
+					.pctCorrect()) + "%");
+			correctlyPredicted.setText(Double.toString(classify.getEval()
+					.correct()));
+			double max = new BigDecimal(Double.toString(classify.getMaxGain()))
+					.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+			rootLabel.setText(Double.toString(max) + " bits");
 		} catch (Exception e1) {
 		}
 		final JLabel lblTemperaturecc = new JLabel("Temperature(35C-42C)");
 		lblTemperaturecc.setBounds(10, 11, 150, 14);
 		frame.getContentPane().add(lblTemperaturecc);
-		
+
 		textField = new JTextField();
 		textField.setBounds(150, 8, 86, 20);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
-		
+
 		final JCheckBox lblLumbar = new JCheckBox("Lumbar Pain?");
 		lblLumbar.setBounds(6, 58, 104, 14);
 		frame.getContentPane().add(lblLumbar);
-		
+
 		final JCheckBox lblUrinePushingyesno = new JCheckBox("Urine Pushing?");
 		lblUrinePushingyesno.setBounds(6, 82, 115, 14);
 		frame.getContentPane().add(lblUrinePushingyesno);
-		
-		final JCheckBox lblMicturitionPainsyesno = new JCheckBox("Micturition Pains?");
+
+		final JCheckBox lblMicturitionPainsyesno = new JCheckBox(
+				"Micturition Pains?");
 		lblMicturitionPainsyesno.setBounds(6, 107, 123, 14);
 		frame.getContentPane().add(lblMicturitionPainsyesno);
-		
-		final JCheckBox lblBurningOfUrethra = new JCheckBox("Burning of urethra?");
+
+		final JCheckBox lblBurningOfUrethra = new JCheckBox(
+				"Burning of urethra?");
 		lblBurningOfUrethra.setBounds(6, 129, 139, 14);
 		frame.getContentPane().add(lblBurningOfUrethra);
-		
+
 		final JCheckBox lblNausea = new JCheckBox("Nausea?");
 		lblNausea.setBounds(6, 32, 97, 23);
 		frame.getContentPane().add(lblNausea);
-		
-		
-		final JLabel lblNewLabel = new JLabel("INFLAMMATION OF URINARY BLADDER:");
+
+		final JLabel lblNewLabel = new JLabel(
+				"INFLAMMATION OF URINARY BLADDER:");
 		lblNewLabel.setBounds(10, 184, 250, 28);
 		frame.getContentPane().add(lblNewLabel);
-		
-		JLabel lblNewLabel_1 = new JLabel("NEPHRITIS OF RENAL PELVIS ORIGIN");
+
+		JLabel lblNewLabel_1 = new JLabel("NEPHRITIS OF RENAL PELVIS ORIGIN:");
 		lblNewLabel_1.setBounds(10, 223, 250, 14);
 		frame.getContentPane().add(lblNewLabel_1);
-		
+
 		final JLabel lblInflammation = new JLabel("");
-		lblInflammation.setBounds(250, 191, 46, 14);
+		lblInflammation.setBounds(230, 191, 46, 14);
 		frame.getContentPane().add(lblInflammation);
-		
+
 		final JLabel lblNephritis = new JLabel("");
-		lblNephritis.setBounds(250, 223, 46, 14);
+		lblNephritis.setBounds(230, 223, 46, 14);
 		frame.getContentPane().add(lblNephritis);
-		
+
 		JButton btnChangeTestFile = new JButton("Change Test");
 		btnChangeTestFile.setBounds(10, 150, 109, 23);
 		frame.getContentPane().add(btnChangeTestFile);
-		
+
 		JButton btnChangeTrainFile = new JButton("Change Train");
 		btnChangeTrainFile.setBounds(130, 150, 109, 23);
 		frame.getContentPane().add(btnChangeTrainFile);
-		
+
 		JLabel lblTestedCases = new JLabel("Tested Cases");
 		lblTestedCases.setBounds(266, 11, 86, 14);
 		frame.getContentPane().add(lblTestedCases);
-		
+
 		JSeparator separator = new JSeparator(JSeparator.VERTICAL);
 		separator.setBounds(260, 0, 100, 600);
 		frame.getContentPane().add(separator);
-		
 
-		
 		viewTree();
 		btnChangeTestFile.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent event) {
-                    String command = event.getActionCommand();
-                    if (command.equals("Change Test")) {
-                            fileChooser.showDialog(frame,
-                                            "Choose Test File");
-                            File f = fileChooser.getSelectedFile();
-                            try {
-								BufferedReader newReaderFile = new BufferedReader(new FileReader(f));
-								testReader = newReaderFile;
-								classify.changeReaders(null, newReaderFile);
-								classify.test();
-								testedCases.setText(Double.toString(classify.getEval().numInstances()));
-								correctlyClassified.setText(Double.toString(classify.getEval().pctCorrect()) + "%");
-							} catch (FileNotFoundException e) {
-								JOptionPane.showMessageDialog(frame, "File not found!");
-								e.printStackTrace();
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-                       
-                    }
-            }
-    });
-		
+			public void actionPerformed(ActionEvent event) {
+				String command = event.getActionCommand();
+				if (command.equals("Change Test")) {
+					fileChooser.showDialog(frame, "Choose Test File");
+					File f = fileChooser.getSelectedFile();
+					try {
+						BufferedReader newReaderFile = new BufferedReader(
+								new FileReader(f));
+						testReader = newReaderFile;
+						classify.changeReaders(null, newReaderFile);
+						classify.test();
+						testedCases.setText(Double.toString(classify.getEval()
+								.numInstances()));
+						correctlyClassified.setText(Double.toString(classify
+								.getEval().pctCorrect()) + "%");
+						correctlyPredicted.setText(Double.toString(classify
+								.getEval().correct()));
+					} catch (FileNotFoundException e) {
+						JOptionPane.showMessageDialog(frame, "File not found!");
+					} catch (Exception e) {
+					}
+
+				}
+			}
+		});
+
 		btnChangeTrainFile.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent event) {
-                    String command = event.getActionCommand();
-                    if (command.equals("Change Train")) {
-                            fileChooser.showDialog(frame,
-                                            "Choose Train File");
-                            File f = fileChooser.getSelectedFile();
-                            
-                            try {
-								BufferedReader newReaderFile = new BufferedReader(new FileReader(f));
-								trainReader = newReaderFile;
-								classify.changeReaders(newReaderFile, null);
-								classify.train();
-								classify.test();
-								trainFileExists = true;
-								viewTree();
-							} catch (FileNotFoundException e) {
-								trainFileExists = false;
-								JOptionPane.showMessageDialog(frame, "File not found!");
-							} catch (Exception e) {
-							}
-                    }
-            }
-    });
-		
+			public void actionPerformed(ActionEvent event) {
+				String command = event.getActionCommand();
+				if (command.equals("Change Train")) {
+					fileChooser.showDialog(frame, "Choose Train File");
+					File f = fileChooser.getSelectedFile();
+
+					try {
+						BufferedReader newReaderFile = new BufferedReader(
+								new FileReader(f));
+						trainReader = newReaderFile;
+						classify.changeReaders(newReaderFile, null);
+						treeFrame.dispatchEvent(new WindowEvent(treeFrame,
+								WindowEvent.WINDOW_CLOSING));
+						classify.resetMaxGain();
+						classify.train();
+						classify.test();
+						double max = new BigDecimal(Double.toString(classify
+								.getMaxGain())).setScale(3,
+								BigDecimal.ROUND_HALF_UP).doubleValue();
+						rootLabel.setText(Double.toString(max) + " bits");
+						trainFileExists = true;
+						viewTree();
+					} catch (FileNotFoundException e) {
+						trainFileExists = false;
+						JOptionPane.showMessageDialog(frame, "File not found!");
+					} catch (Exception e) {
+					}
+				}
+			}
+		});
+
 		JButton btnTest = new JButton("TEST");
-		
+
 		btnTest.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				float temperature = 0;
-				try{
-				 temperature = Float.parseFloat(textField.getText());
-				}catch(NumberFormatException ex){
-					JOptionPane.showMessageDialog(frame, "Please use '.' as separator");
+				try {
+					temperature = Float.parseFloat(textField.getText());
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(frame,
+							"Please use '.' as separator");
 					return;
 				}
-				if(temperature < 35.0 || temperature > 42.0)
-				{
-					JOptionPane.showMessageDialog(frame, "Temperature must be between 35ºC and 42ºC");
+				if (temperature < 35.0 || temperature > 42.0) {
+					JOptionPane.showMessageDialog(frame,
+							"Temperature must be between 35ºC and 42ºC");
 					return;
 				}
 				String nausea, lumbarPain, urinePushing, micturitionPains, burning;
-				
-				if(lblNausea.isSelected()) nausea = "yes";
-				else nausea = "no";
-				if(lblLumbar.isSelected()) lumbarPain = "yes";
-				else lumbarPain = "no";
-				if(lblUrinePushingyesno.isSelected()) urinePushing = "yes";
-				else urinePushing = "no";
-				if(lblMicturitionPainsyesno.isSelected()) micturitionPains = "yes";
-				else micturitionPains = "no";
-				if(lblBurningOfUrethra.isSelected()) burning = "yes";
-				else burning = "no";
-				
+
+				if (lblNausea.isSelected())
+					nausea = "yes";
+				else
+					nausea = "no";
+				if (lblLumbar.isSelected())
+					lumbarPain = "yes";
+				else
+					lumbarPain = "no";
+				if (lblUrinePushingyesno.isSelected())
+					urinePushing = "yes";
+				else
+					urinePushing = "no";
+				if (lblMicturitionPainsyesno.isSelected())
+					micturitionPains = "yes";
+				else
+					micturitionPains = "no";
+				if (lblBurningOfUrethra.isSelected())
+					burning = "yes";
+				else
+					burning = "no";
+
 				try {
-					String result = classify.runClassifier(temperature, nausea, lumbarPain, urinePushing, micturitionPains, burning);
-					if(result.charAt(0) == 'y') lblInflammation.setText("YES"); 
-					else lblInflammation.setText("NO");
-					if(result.charAt(1) == 'y') lblNephritis.setText("YES");
-					else lblNephritis.setText("NO");
-					
+					String result = classify
+							.runClassifier(temperature, nausea, lumbarPain,
+									urinePushing, micturitionPains, burning);
+					if (result.charAt(0) == 'y')
+						lblInflammation.setText("YES");
+					else
+						lblInflammation.setText("NO");
+					if (result.charAt(1) == 'y')
+						lblNephritis.setText("YES");
+					else
+						lblNephritis.setText("NO");
+
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(frame, "Bad File Format");
 				}
-				
 
 			}
 
-			
 		});
 		btnTest.setBounds(150, 78, 89, 23);
 		frame.getContentPane().add(btnTest);
-		
-		
 
-		
-
-
-		
-
-		
-		
-		
-		
-		
-	
 	}
 }
