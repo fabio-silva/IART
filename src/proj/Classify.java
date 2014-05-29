@@ -33,10 +33,8 @@ public class Classify {
 
 	public void test() throws Exception {
 		test.setClassIndex(train.numAttributes() - 1);
-
 		eval = new Evaluation(train);
 		eval.evaluateModel(tree, test);
-
 	}
 
 	public void train() throws Exception {
@@ -59,9 +57,7 @@ public class Classify {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public String runClassifier(float temperature, String nauseaAns,
-			String lumbarPainAns, String urinePushingAns,
-			String micturitionPainsAns, String burningAns) throws Exception {
+	public String runClassifier(float temperature, String nauseaAns,String lumbarPainAns, String urinePushingAns,String micturitionPainsAns, String burningAns) throws Exception {
 
 		ArrayList values = new ArrayList(2);
 		ArrayList fourClassifierVec = new ArrayList(4);
@@ -78,9 +74,7 @@ public class Classify {
 		Attribute urinePushing = new Attribute("urinePushing", values);
 		Attribute micturitionPains = new Attribute("micturitionPains", values);
 		Attribute burningOrItch = new Attribute("burningOrItch", values);
-		Attribute dualDisease = new Attribute(
-				"inflammationOfBladderOrNephritisOfRenalPelvis",
-				fourClassifierVec);
+		Attribute dualDisease = new Attribute("inflammationOfBladderOrNephritisOfRenalPelvis",fourClassifierVec);
 
 		ArrayList<Attribute> attrs = new ArrayList<Attribute>();
 		attrs.add(tempAttr);
@@ -112,8 +106,7 @@ public class Classify {
 
 	}
 
-	public void changeReaders(BufferedReader trainReader,
-			BufferedReader testReader) throws IOException {
+	public void changeReaders(BufferedReader trainReader,BufferedReader testReader) throws IOException {
 		if (trainReader != null && testReader != null) {
 			train = new Instances(trainReader);
 			test = new Instances(testReader);

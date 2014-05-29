@@ -38,14 +38,8 @@ public class UrinSystem {
 	private static JFileChooser fileChooser = new JFileChooser();
 	static BufferedReader trainReader = null, testReader = null;
 	javax.swing.JFrame treeFrame;
-	/**
-	 * @wbp.nonvisual location=81,-1
-	 */
-	private JTextField textField;
+	private JTextField temperatureField;
 
-	/**
-	 * Launch the application.
-	 */
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -186,10 +180,10 @@ public class UrinSystem {
 		lblTemperaturecc.setBounds(10, 11, 150, 14);
 		frame.getContentPane().add(lblTemperaturecc);
 
-		textField = new JTextField();
-		textField.setBounds(150, 8, 86, 20);
-		frame.getContentPane().add(textField);
-		textField.setColumns(10);
+		temperatureField = new JTextField();
+		temperatureField.setBounds(150, 8, 86, 20);
+		frame.getContentPane().add(temperatureField);
+		temperatureField.setColumns(10);
 
 		final JCheckBox lblLumbar = new JCheckBox("Lumbar Pain?");
 		lblLumbar.setBounds(6, 58, 104, 14);
@@ -199,13 +193,11 @@ public class UrinSystem {
 		lblUrinePushingyesno.setBounds(6, 82, 115, 14);
 		frame.getContentPane().add(lblUrinePushingyesno);
 
-		final JCheckBox lblMicturitionPainsyesno = new JCheckBox(
-				"Micturition Pains?");
-		lblMicturitionPainsyesno.setBounds(6, 107, 123, 14);
+		final JCheckBox lblMicturitionPainsyesno = new JCheckBox("Micturition Pains?");
+		lblMicturitionPainsyesno.setBounds(6, 107, 128, 14);
 		frame.getContentPane().add(lblMicturitionPainsyesno);
 
-		final JCheckBox lblBurningOfUrethra = new JCheckBox(
-				"Burning of urethra?");
+		final JCheckBox lblBurningOfUrethra = new JCheckBox("Burning of urethra?");
 		lblBurningOfUrethra.setBounds(6, 129, 139, 14);
 		frame.getContentPane().add(lblBurningOfUrethra);
 
@@ -213,8 +205,7 @@ public class UrinSystem {
 		lblNausea.setBounds(6, 32, 97, 23);
 		frame.getContentPane().add(lblNausea);
 
-		final JLabel lblNewLabel = new JLabel(
-				"INFLAMMATION OF URINARY BLADDER:");
+		final JLabel lblNewLabel = new JLabel("INFLAMMATION OF URINARY BLADDER:");
 		lblNewLabel.setBounds(10, 184, 250, 28);
 		frame.getContentPane().add(lblNewLabel);
 
@@ -257,8 +248,7 @@ public class UrinSystem {
 					fileChooser.showDialog(frame, "Choose Test File");
 					File f = fileChooser.getSelectedFile();
 					try {
-						BufferedReader newReaderFile = new BufferedReader(
-								new FileReader(f));
+						BufferedReader newReaderFile = new BufferedReader(new FileReader(f));
 						testReader = newReaderFile;
 						classify.changeReaders(null, newReaderFile);
 						classify.test();
@@ -314,7 +304,7 @@ public class UrinSystem {
 			public void mouseClicked(MouseEvent arg0) {
 				float temperature = 0;
 				try {
-					temperature = Float.parseFloat(textField.getText());
+					temperature = Float.parseFloat(temperatureField.getText());
 				} catch (NumberFormatException ex) {
 					JOptionPane.showMessageDialog(frame,
 							"Please use '.' as separator");
