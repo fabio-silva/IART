@@ -3,7 +3,9 @@ package proj;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import weka.attributeSelection.GainRatioAttributeEval;
+import weka.attributeSelection.InfoGainAttributeEval;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.J48;
@@ -17,12 +19,16 @@ public class Classify {
 	static Classifier tree;
 	static Instances test, train;
 	static Evaluation eval;
-	static GainRatioAttributeEval infoGainEval;
-	double max = -1.0;
+	static GainRatioAttributeEval gainRatioEval;
+	static InfoGainAttributeEval infoGainEval;
+	double maxRatio = -1.0;
+	double maxGain = -1.0;
+	long mSecs = 0;
 
 	public Classify() {
 		tree = new J48();
-		infoGainEval = new GainRatioAttributeEval();
+		gainRatioEval = new GainRatioAttributeEval();
+		infoGainEval = new InfoGainAttributeEval();
 	}
 
 	public void test() throws Exception {
@@ -35,18 +41,21 @@ public class Classify {
 
 	public void train() throws Exception {
 		train.setClassIndex(train.numAttributes() - 1);
+		long startTime = System.nanoTime();  
 		tree.buildClassifier(train);
+		long estimatedTime = System.nanoTime() - startTime;
+		mSecs = estimatedTime / 1000000;
+		gainRatioEval.buildEvaluator(train);
 		infoGainEval.buildEvaluator(train);
-		System.out.println("ATTRIBUTES = " + train.numAttributes());
 		for (int i = 0; i < train.numAttributes(); i++) {
-			Attribute attr = train.attribute(i);
-			double tmp = infoGainEval.evaluateAttribute(i);
-			System.out.println("VAL = " + tmp + " = " + attr.name());
-			if (tmp > max && tmp < 1.0)
-				max = tmp;
+			double tmpRatio = gainRatioEval.evaluateAttribute(i);
+			double tmpGain = infoGainEval.evaluateAttribute(i);
+			if (tmpRatio > maxRatio && tmpRatio < 1.0)
+				maxRatio = tmpRatio;
+			if(tmpGain > maxGain)
+				maxGain = tmpGain;
 
 		}
-		System.out.println("MAX =  " + max);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -125,11 +134,23 @@ public class Classify {
 		return eval;
 	}
 
-	public double getMaxGain() {
-		return max;
+	public double getMaxRatio() {
+		return maxRatio;
 	}
 
+	public void resetMaxRatio() {
+		maxRatio = -1.0;
+	}
+	
+	public long getTrainTime() {
+		return mSecs;
+	}
+	
+	public double getMaxGain() {
+		return maxGain;
+	}
+	
 	public void resetMaxGain() {
-		max = -1.0;
+		maxGain = -1.0;
 	}
 }

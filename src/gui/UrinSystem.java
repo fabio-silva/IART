@@ -110,12 +110,12 @@ public class UrinSystem {
 		testedCases.setBounds(352, 11, 46, 14);
 		frame.getContentPane().add(testedCases);
 
-		JLabel lblCorrectlyClassified = new JLabel("Correctly Classified(%)");
-		lblCorrectlyClassified.setBounds(266, 58, 130, 14);
+		JLabel lblCorrectlyClassified = new JLabel("Correctly Predicted(%)");
+		lblCorrectlyClassified.setBounds(266, 55, 130, 14);
 		frame.getContentPane().add(lblCorrectlyClassified);
 
 		final JLabel correctlyClassified = new JLabel("");
-		correctlyClassified.setBounds(400, 58, 46, 14);
+		correctlyClassified.setBounds(395, 55, 50, 14);
 		frame.getContentPane().add(correctlyClassified);
 
 		JLabel lblCorrectlyPredicted = new JLabel("Correctly Predicted");
@@ -123,16 +123,32 @@ public class UrinSystem {
 		frame.getContentPane().add(lblCorrectlyPredicted);
 
 		final JLabel correctlyPredicted = new JLabel("");
-		correctlyPredicted.setBounds(380, 33, 46, 14);
+		correctlyPredicted.setBounds(382, 33, 46, 14);
 		frame.getContentPane().add(correctlyPredicted);
 
 		JLabel lblRootAttribute = new JLabel("Root Gain Ratio");
-		lblRootAttribute.setBounds(266, 83, 86, 14);
+		lblRootAttribute.setBounds(266, 77, 86, 14);
 		frame.getContentPane().add(lblRootAttribute);
 
 		final JLabel rootLabel = new JLabel("");
-		rootLabel.setBounds(360, 83, 60, 14);
+		rootLabel.setBounds(360, 77, 60, 14);
 		frame.getContentPane().add(rootLabel);
+		
+		JLabel lblRootInfoGain = new JLabel("Root Info Gain");
+		lblRootInfoGain.setBounds(266, 99, 86, 14);
+		frame.getContentPane().add(lblRootInfoGain);
+		
+		final JLabel rootInfo = new JLabel("");
+		rootInfo.setBounds(360, 99, 60, 14);
+		frame.getContentPane().add(rootInfo);
+		
+		JLabel lblTrainingTreeTime = new JLabel("Tree Training Time");
+		lblTrainingTreeTime.setBounds(266, 121, 110, 14);
+		frame.getContentPane().add(lblTrainingTreeTime);
+		
+		final JLabel time = new JLabel("");
+		time.setBounds(382, 121, 50, 14);
+		frame.getContentPane().add(time);
 
 		try {
 			trainReader = new BufferedReader(new FileReader("train.data"));
@@ -156,15 +172,14 @@ public class UrinSystem {
 		try {
 			classify.train();
 			classify.test();
-			testedCases.setText(Double.toString(classify.getEval()
-					.numInstances()));
-			correctlyClassified.setText(Double.toString(classify.getEval()
-					.pctCorrect()) + "%");
-			correctlyPredicted.setText(Double.toString(classify.getEval()
-					.correct()));
-			double max = new BigDecimal(Double.toString(classify.getMaxGain()))
-					.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-			rootLabel.setText(Double.toString(max) + " bits");
+			testedCases.setText(Double.toString(classify.getEval().numInstances()));
+			correctlyClassified.setText(Double.toString(classify.getEval().pctCorrect()) + "%");
+			correctlyPredicted.setText(Double.toString(classify.getEval().correct()));
+			double maxRatio = new BigDecimal(Double.toString(classify.getMaxRatio())).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+			rootLabel.setText(Double.toString(maxRatio) + " bits");
+			double maxGain = new BigDecimal(Double.toString(classify.getMaxGain())).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+			rootInfo.setText(Double.toString(maxGain) + " bits");
+			time.setText(Long.toString(classify.getTrainTime()) + " ms");
 		} catch (Exception e1) {
 		}
 		final JLabel lblTemperaturecc = new JLabel("Temperature(35C-42C)");
@@ -226,6 +241,8 @@ public class UrinSystem {
 		JLabel lblTestedCases = new JLabel("Tested Cases");
 		lblTestedCases.setBounds(266, 11, 86, 14);
 		frame.getContentPane().add(lblTestedCases);
+		
+		
 
 		JSeparator separator = new JSeparator(JSeparator.VERTICAL);
 		separator.setBounds(260, 0, 100, 600);
@@ -245,12 +262,9 @@ public class UrinSystem {
 						testReader = newReaderFile;
 						classify.changeReaders(null, newReaderFile);
 						classify.test();
-						testedCases.setText(Double.toString(classify.getEval()
-								.numInstances()));
-						correctlyClassified.setText(Double.toString(classify
-								.getEval().pctCorrect()) + "%");
-						correctlyPredicted.setText(Double.toString(classify
-								.getEval().correct()));
+						testedCases.setText(Double.toString(classify.getEval().numInstances()));
+						correctlyClassified.setText(Double.toString(classify.getEval().pctCorrect()) + "%");
+						correctlyPredicted.setText(Double.toString(classify.getEval().correct()));
 					} catch (FileNotFoundException e) {
 						JOptionPane.showMessageDialog(frame, "File not found!");
 					} catch (Exception e) {
@@ -269,19 +283,19 @@ public class UrinSystem {
 					File f = fileChooser.getSelectedFile();
 
 					try {
-						BufferedReader newReaderFile = new BufferedReader(
-								new FileReader(f));
+						BufferedReader newReaderFile = new BufferedReader(new FileReader(f));
 						trainReader = newReaderFile;
 						classify.changeReaders(newReaderFile, null);
-						treeFrame.dispatchEvent(new WindowEvent(treeFrame,
-								WindowEvent.WINDOW_CLOSING));
+						treeFrame.dispatchEvent(new WindowEvent(treeFrame,WindowEvent.WINDOW_CLOSING));
+						classify.resetMaxRatio();
 						classify.resetMaxGain();
+						time.setText(Long.toString(classify.getTrainTime()) + " ms");
 						classify.train();
 						classify.test();
-						double max = new BigDecimal(Double.toString(classify
-								.getMaxGain())).setScale(3,
-								BigDecimal.ROUND_HALF_UP).doubleValue();
-						rootLabel.setText(Double.toString(max) + " bits");
+						double maxRatio = new BigDecimal(Double.toString(classify.getMaxRatio())).setScale(3,BigDecimal.ROUND_HALF_UP).doubleValue();
+						rootLabel.setText(Double.toString(maxRatio) + " bits");
+						double maxGain = new BigDecimal(Double.toString(classify.getMaxGain())).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+						rootInfo.setText(Double.toString(maxGain) + " bits");
 						trainFileExists = true;
 						viewTree();
 					} catch (FileNotFoundException e) {
@@ -356,6 +370,12 @@ public class UrinSystem {
 		});
 		btnTest.setBounds(150, 78, 89, 23);
 		frame.getContentPane().add(btnTest);
+		
+
+		
+	
+		
+
 
 	}
 }
